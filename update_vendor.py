@@ -2,7 +2,7 @@ import psycopg2
 import os
 import dotenv
 
-def update_vendor(updates):
+def update_vendor(vendor_id, **kwargs):
     
     conn = None
     command = """
@@ -23,20 +23,26 @@ def update_vendor(updates):
         
         cursor = conn.cursor()
         
-        def updating(**kwargs):
-            cursor.execute(command, tuple(kwargs.values()))
+        # def updating(**kwargs):
+        #     cursor.execute(command, tuple(kwargs.values()))
 
-        for update in updates:
-            updating(**update)
+        # for update in updates:
+        #     updating(**update)
         
-        cursor.execute('SELECT * FROM vendor WHERE vendor_id < 5;')
-        rows = cursor.fetchall()
+        cursor.execute(command, tuple(kwargs.values()) + tuple(vendor_id))
         
-        for row in rows:
-            print(f'The row has been updated:\n  - Vendor ID: {row[0]}\n  - Vendor Name: {row[1]}\n  - Industry: {row[2]}')
+        # cursor.execute('SELECT * FROM vendor WHERE vendor_id < 5;')
+        # rows = cursor.fetchall()
+        cursor.execute(f'SELECT * FROM vendor WHERE vendor_id = {vendor_id};')
+        row = cursor.fetchall()[0]
         
-        cursor.close()
         conn.commit()
+        # for row in rows:
+        #     print(f'The row has been updated:\n  - Vendor ID: {row[0]}\n  - Vendor Name: {row[1]}\n  - Industry: {row[2]}')
+        cursor.close()
+        return f'The row has been updated:\n  - Vendor ID: {row[0]}\n  - Vendor Name: {row[1]}\n  - Industry: {row[2]}'
+        
+        
     except(Exception, psycopg2.DatabaseError) as error:
         print(error)
         
@@ -70,4 +76,5 @@ updates = [
 
 
 if __name__ == '__main__':
-    update_vendor(updates)
+    # update_vendor(updates)
+    print(update_vendor(vendor_id='1', vendor_name='TechGuru Solutions',industry='Technology'))
